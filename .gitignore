@@ -1,0 +1,70 @@
+# Consolidated .gitignore for Flutter projects
+
+# Flutter/Dart
+.dart_tool/
+.flutter-plugins-dependencies
+.flutter-plugins
+.dart_tool/package_config.json
+pubspec.lock
+.packages
+
+# Build outputs
+/build/
+**/build/
+
+# Misc
+.DS_Store
+*.log
+*.class
+*.pyc
+*.swp
+
+# IDE / Editor
+/.idea/
+*.iml
+*.ipr
+*.iws
+/.vscode/
+
+# Android
+/android/.gradle/
+/android/local.properties
+/android/**/gradle-wrapper.jar
+/android/**/captures/
+/android/**/output.json
+
+# iOS
+/ios/Pods/
+/ios/Flutter/Flutter.framework
+/ios/Flutter/Flutter.podspec
+/ios/Flutter/ephemeral/
+/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS
+/macos/Flutter/ephemeral/
+/macos/Pods/
+
+# Linux
+/linux/flutter/ephemeral/
+
+# Windows
+/windows/flutter/ephemeral/
+
+# CocoaPods
+/Pods/
+/.symlinks/
+
+# Flutter generated
+**/ios/Flutter/.last_build_id
+Flutter/ephemeral/
+flutter_release/
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# Other user/local files
+/android/key.properties
+**/*.keystore
+**/*.jks
+
