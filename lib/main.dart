@@ -5,8 +5,11 @@ import 'widgets/clock_card.dart';
 import 'widgets/analog_clock.dart';
 import 'widgets/calendar_card.dart';
 import 'widgets/mini_calendar_card.dart';
+import 'services/fullscreen_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeFullscreenSupport();
   runApp(const MyApp());
 }
 
@@ -38,8 +41,10 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  final FullscreenService fullscreenService = createFullscreenService();
   late DateTime selectedDate;
   late DateTime currentTime;
+  bool isFullscreen = false;
   Timer? clockTimer;
 
   @override
@@ -72,6 +77,17 @@ class _DashboardPageState extends State<DashboardPage> {
     selectedDate = newDate;
   });
 
+  Future<void> _toggleFullscreen() async {
+    final nextValue = !isFullscreen;
+    final actualValue = await fullscreenService.setFullscreen(nextValue);
+
+    if (!mounted) return;
+
+    setState(() {
+      isFullscreen = actualValue;
+    });
+  }
+
   @override
   void dispose() {
     clockTimer?.cancel();
@@ -80,90 +96,114 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isLandscape = constraints.maxWidth > constraints.maxHeight;
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-            if (isLandscape) {
-              return Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      children: [
-                        Expanded(flex: 3, child: ClockCard(now: currentTime)),
-                        const SizedBox(height: 10),
-                        Expanded(
-                          flex: 2,
-                          child: Center(child: AnalogClock(now: currentTime)),
+                if (isLandscape) {
+                  return Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Column(
+                          children: [
+                            Expanded(flex: 3, child: ClockCard(now: currentTime)),
+                            const SizedBox(height: 10),
+                            Expanded(
+                              flex: 2,
+                              child: Center(child: AnalogClock(now: currentTime)),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    flex: 3,
-                    child: Column(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: CalendarCard(
-                            selectedDate: selectedDate,
-                            onPreviousMonth: _previousMonth,
-                            onNextMonth: _nextMonth,
-                            onDateSelected: _selectDate,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Expanded(
-                          flex: 1,
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: MiniCalendarCard(
-                                  monthOffset: -1,
-                                  baseDate: selectedDate,
-                                ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: CalendarCard(
+                                selectedDate: selectedDate,
+                                onPreviousMonth: _previousMonth,
+                                onNextMonth: _nextMonth,
+                                onDateSelected: _selectDate,
                               ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: MiniCalendarCard(
-                                  monthOffset: 1,
-                                  baseDate: selectedDate,
-                                ),
+                            ),
+                            const SizedBox(height: 10),
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: MiniCalendarCard(
+                                      monthOffset: -1,
+                                      baseDate: selectedDate,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: MiniCalendarCard(
+                                      monthOffset: 1,
+                                      baseDate: selectedDate,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }
+                      ),
+                    ],
+                  );
+                }
 
-            // portrait fallback
-            return Column(
-              children: [
-                Expanded(flex: 2, child: ClockCard(now: currentTime)),
-                const SizedBox(height: 10),
-                Expanded(
-                  flex: 3,
-                  child: CalendarCard(
-                    selectedDate: selectedDate,
-                    onPreviousMonth: _previousMonth,
-                    onNextMonth: _nextMonth,
-                    onDateSelected: _selectDate,
+                // portrait fallback
+                return Column(
+                  children: [
+                    Expanded(flex: 2, child: ClockCard(now: currentTime)),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      flex: 3,
+                      child: CalendarCard(
+                        selectedDate: selectedDate,
+                        onPreviousMonth: _previousMonth,
+                        onNextMonth: _nextMonth,
+                        onDateSelected: _selectDate,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: SafeArea(
+              child: Material(
+                color: cs.surfaceContainerHighest.withValues(alpha: 0.9),
+                elevation: 4,
+                shape: const StadiumBorder(),
+                child: IconButton(
+                  tooltip: isFullscreen ? '全画面を終了' : '全画面にする',
+                  icon: Icon(
+                    isFullscreen ? Icons.fullscreen_exit : Icons.fullscreen,
                   ),
+                  onPressed: _toggleFullscreen,
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
