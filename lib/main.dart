@@ -187,7 +187,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           Positioned(
             top: 12,
-            right: 12,
+            left: 12,
             child: SafeArea(
               child: Material(
                 color: cs.surfaceContainerHighest.withValues(alpha: 0.9),

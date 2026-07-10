@@ -1,4 +1,6 @@
-import 'dart:html' as html;
+import 'dart:js_interop';
+
+import 'package:web/web.dart' as web;
 
 import 'fullscreen_service_interface.dart';
 
@@ -9,12 +11,15 @@ class _WebFullscreenService implements FullscreenService {
   @override
   Future<bool> setFullscreen(bool enable) async {
     if (enable) {
-      await html.document.documentElement?.requestFullscreen();
+      final element = web.document.documentElement;
+      if (element != null) {
+        await element.requestFullscreen().toDart;
+      }
     } else {
-      html.document.exitFullscreen();
+      await web.document.exitFullscreen().toDart;
     }
 
-    return html.document.fullscreenElement != null;
+    return web.document.fullscreenElement != null;
   }
 }
 
