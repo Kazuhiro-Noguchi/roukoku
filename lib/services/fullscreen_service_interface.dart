@@ -3,10 +3,3 @@ abstract class FullscreenService {
 
   Future<bool> setFullscreen(bool enable);
 }
-
-FullscreenService createFullscreenService();
-
-Future<void> initializeFullscreenSupport() async {
-  final service = createFullscreenService();
-  await service.initialize();
-}

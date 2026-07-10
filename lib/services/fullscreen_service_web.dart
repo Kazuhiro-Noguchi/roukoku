@@ -11,7 +11,7 @@ class _WebFullscreenService implements FullscreenService {
     if (enable) {
       await html.document.documentElement?.requestFullscreen();
     } else {
-      await html.document.exitFullscreen();
+      html.document.exitFullscreen();
     }
 
     return html.document.fullscreenElement != null;

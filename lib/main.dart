@@ -9,7 +9,6 @@ import 'services/fullscreen_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeFullscreenSupport();
   runApp(const MyApp());
 }
 
@@ -52,6 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
     super.initState();
     selectedDate = DateTime.now();
     currentTime = DateTime.now();
+    unawaited(fullscreenService.initialize());
     _scheduleNextTick();
   }
 
